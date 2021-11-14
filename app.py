@@ -19,9 +19,6 @@ def ticker():
     # analytics = Analytics(stock_data)
     # predicted = analytics.predict()
     # log = analytics.logs()
-    # with open("api.json", "r") as f:
-    #     data = Data(f.read()).convertToJSON()
-    #     print(data)
 
     return dataframe.to_json()
 
