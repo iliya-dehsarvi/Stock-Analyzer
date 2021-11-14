@@ -29,9 +29,8 @@ class Data:
         threads = [th.Thread(target=self._call_back, args=(func, key)) for key, func in intervals.items()]
         for thread in threads: thread.start()
         for thread in threads: thread.join()
-        
+
         _json = {
-            'ticker': ticker,
             'intervals': _data
         }
 
