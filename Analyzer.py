@@ -1,13 +1,10 @@
-# import matplotlib.pyplot as plt
 import yfinance as yf
 import numpy as np
 import pandas as pd
 from sklearn.svm import SVR
 import threading as th
 import json
-import talib
-
-import Data, API
+import talib as ta
 
 class Analyzer:
     def get(self, data):
@@ -21,17 +18,31 @@ class Analyzer:
         # self._graph(self.adj_close, self.create_pridicted_data(self.adj_close)) 
 
         self.analytics = {
-            'Data': self.adj_close,
-            'Predicted': self.create_pridicted_data(self.adj_close),
-            'Analytics note': '',
-            'logs': []
+            'historical': self.adj_close,
+            'predicted': self.create_pridicted_data(self.adj_close),
+            'notes': '',
+            'logs': None#self.pattern_recignition(self.data)
         }
-
+        # print()
         return self.analytics
 
-    def pattern_recignition(self, data):
-        chunked_data = self._data_in_chunks(data)
-        
+    # def pattern_recignition(self, data):
+    #     chunked_data = self._data_in_chunks(data)
+    #     for DF in chunked_data:
+    #         CDLHAMMER = ta.CDLHAMMER(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #         CDLENGULFING = ta.CDLENGULFING(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #         CDL3BLACKCROWS = ta.CDL3BLACKCROWS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #         CDL3LINESTRIKE = ta.CDL3LINESTRIKE(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #         CDLSTICKSANDWICH = ta.CDLSTICKSANDWICH(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #         CDL3WHITESOLDIERS = ta.CDL3WHITESOLDIERS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+
+    #         if any(CDLHAMMER == 100) or any(CDLENGULFING == 100)\
+    #             or any(CDL3BLACKCROWS == 100) or any(CDL3LINESTRIKE == 100)\
+    #             or any(CDLSTICKSANDWICH == 100) or any(CDL3WHITESOLDIERS == 100):
+    #             print(DF)
+    #             self._GRAPHER(DFG, SYMB)
+    #             return True
+    #         return False
 
     def create_pridicted_data(self, data):
         chunked_data, chunk_length = self._data_in_chunks(data)
@@ -97,7 +108,7 @@ class Analyzer:
     #     # fig.tight_layout()
     #     plt.show()
 
-if __name__ == '__main__':
-    data = yf.download('AAPL', period='5d', interval='1m')
-    App = Analyzer()
-    App.get(data)
+# if __name__ == '__main__':
+#     data = yf.download('AAPL', period='5d', interval='1m')
+#     App = Analyzer()
+#     App.get(data)
