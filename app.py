@@ -9,7 +9,7 @@ class Data:
     def __init__(self, ticker):
         self.ticker = ticker
         self._data = {}
-        self.a = Analyzer()
+        self.analytics = Analyzer()
 
     def data(self):
         self._data = StockData(ticker)
@@ -32,7 +32,7 @@ class Data:
         }
 
     def _call_back(self, func, key):
-        self._data[key] = self.a.get(func())
+        self._data[key] = self.analytics.get(func())
 
 
 @app.route("/one", methods=["POST"])
