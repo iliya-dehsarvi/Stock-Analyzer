@@ -12,7 +12,7 @@ class StockData:
             self.init = False
             return data
         else:
-            return get5dData(), get1moData(), get3moData(), get6moData(), get1YrData(), getAllData()
+            return self.get5dData(), self.get1moData(), self.get3moData(), self.get6moData(), self.get1YrData(), self.getAllData()
 
     def get1dData(self):
         return yf.download(self.ticker.ticker, period='1d', interval='1m')
