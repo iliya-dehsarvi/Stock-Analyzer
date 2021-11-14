@@ -10,29 +10,25 @@ import talib
 import Data, API
 
 class Analyzer:
-    class Analytics:
-        def __init__(self):
-            self.data = None
-            self.predicted_data = None
-            self.analytics_note = None
-            self.logs = None
-
     def __init__(self, data):
         self.data = data
-        self.open = list(data['Open'])
-        self.high = list(data['High'])
-        self.low = list(data['Low'])
-        self.close = list(data['Close'])
+        # self.open = list(data['Open'])
+        # self.high = list(data['High'])
+        # self.low = list(data['Low'])
+        # self.close = list(data['Close'])
         self.adj_close = list(data['Adj Close'])
-        self.volume = list(data['Volume'])
-        self.graph(self.adj_close, self.create_pridicted_data(self.adj_close), self.volume) 
+        # self.volume = list(data['Volume'])
+        # self._graph(self.adj_close, self.create_pridicted_data(self.adj_close), self.volume) 
 
-    def graph(self, *args):
-        number_of_graphs = len(args)
-        fig, axs = plt.subplots(number_of_graphs, 1)
-        for index in range(len(axs)): axs[index].plot(list(range(len(args[index]))), list(args[index]))
-        fig.tight_layout()
-        plt.show()
+        self.analytics = {
+            'Data': self.adj_close,
+            'Predicted': self.create_pridicted_data(self.adj_close),
+            'Analytics note': '',
+            'logs': []
+        }
+
+    def get(self):
+        return self.analytics
 
     def pattern_recignition(self): pass
 
@@ -78,6 +74,14 @@ class Analyzer:
         for value in data: values += value
         return values
 
-if __name__ == '__main__':
-    data = yf.download('AAPL', period='5d', interval='1m')
-    App = Analyzer(data)
+
+    def _graph(self, *args):
+        number_of_graphs = len(args)
+        fig, axs = plt.subplots(number_of_graphs, 1)
+        for index in range(len(axs)): axs[index].plot(list(range(len(args[index]))), list(args[index]))
+        fig.tight_layout()
+        plt.show()
+
+# if __name__ == '__main__':
+#     data = yf.download('AAPL', period='5d', interval='1m')
+#     App = Analyzer(data)
