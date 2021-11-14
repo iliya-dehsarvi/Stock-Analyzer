@@ -10,7 +10,7 @@ import talib
 import Data, API
 
 class Analyzer:
-    def __init__(self, data):
+    def get(self, data):
         self.data = data
         # self.open = list(data['Open'])
         # self.high = list(data['High'])
@@ -18,7 +18,7 @@ class Analyzer:
         # self.close = list(data['Close'])
         self.adj_close = list(data['Adj Close'])
         # self.volume = list(data['Volume'])
-        # self._graph(self.adj_close, self.create_pridicted_data(self.adj_close), self.volume) 
+        self._graph(self.adj_close, self.create_pridicted_data(self.adj_close)) 
 
         self.analytics = {
             'Data': self.adj_close,
@@ -27,7 +27,6 @@ class Analyzer:
             'logs': []
         }
 
-    def get(self):
         return self.analytics
 
     def pattern_recignition(self): pass
@@ -37,7 +36,34 @@ class Analyzer:
         predictions = [self._predict(self._join(chunked_data[:i]), self._join(chunked_data[i+1:]), chunk_length) for i in range(len(chunked_data))]
         prediction = []
         for _prediction in predictions: prediction += _prediction
-        return prediction
+        return prediction+self.predict(data, chunk_length)
+
+    def predict(self, data, interval):
+        sample_size = len(data)
+        indecies = [[index] for index in range(len(data))]
+        RBF = SVR()
+        RBF.fit(indecies, data)
+        predicted = [RBF.predict([[index]])[0] for index in range(len(data), sample_size+int(sample_size*0.2))]
+        pre = predicted[0]
+        temp = []
+        for i, p in enumerate(predicted):
+            if i%interval == 0: pre = p
+            # else: p = pre
+            temp.append(pre)
+        predicted = temp
+
+
+        # for i in range(0, len(predicted), interval):
+        #     temp = [sum(predicted[i: i+interval])/interval]*interval
+        #     try:
+        #         for j in range(interval):
+        #             predicted[i+j] = temp[j]
+        #     except: pass
+            # for j in range(interval):
+            
+
+        # predicted = self.create_pridicted_data(predicted)
+        return predicted
 
     def _predict(self, first_end, last_end, prediction_length):
         if first_end:
@@ -74,14 +100,15 @@ class Analyzer:
         for value in data: values += value
         return values
 
-
     def _graph(self, *args):
         number_of_graphs = len(args)
-        fig, axs = plt.subplots(number_of_graphs, 1)
-        for index in range(len(axs)): axs[index].plot(list(range(len(args[index]))), list(args[index]))
-        fig.tight_layout()
+        # fig, axs = plt.subplots(number_of_graphs, 1)
+        for index in range(number_of_graphs): 
+            plt.plot(list(range(len(args[index]))), list(args[index]))
+        # fig.tight_layout()
         plt.show()
 
-# if __name__ == '__main__':
-#     data = yf.download('AAPL', period='5d', interval='1m')
-#     App = Analyzer(data)
+if __name__ == '__main__':
+    data = yf.download('AAPL', period='5d', interval='1m')
+    App = Analyzer()
+    App.get(data)
