@@ -1,13 +1,10 @@
-import matplotlib.pyplot as plt
 import yfinance as yf
 import numpy as np
 import pandas as pd
 from sklearn.svm import SVR
 import threading as th
 import json
-import talib
-
-import Data, API
+import talib as ta
 
 class Analyzer:
     def get(self, data):
@@ -18,18 +15,34 @@ class Analyzer:
         # self.close = list(data['Close'])
         self.adj_close = list(data['Adj Close'])
         # self.volume = list(data['Volume'])
-        self._graph(self.adj_close, self.create_pridicted_data(self.adj_close)) 
+        # self._graph(self.adj_close, self.create_pridicted_data(self.adj_close)) 
 
         self.analytics = {
-            'Data': self.adj_close,
-            'Predicted': self.create_pridicted_data(self.adj_close),
-            'Analytics note': '',
-            'logs': []
+            'historical': self.adj_close,
+            'predicted': self.create_pridicted_data(self.adj_close),
+            'notes': '',
+            'logs': None#self.pattern_recignition(self.data)
         }
-
+        # print()
         return self.analytics
 
-    def pattern_recignition(self): pass
+    # def pattern_recignition(self, data):
+    #     chunked_data = self._data_in_chunks(data)
+    #     for DF in chunked_data:
+    #         CDLHAMMER = ta.CDLHAMMER(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #         CDLENGULFING = ta.CDLENGULFING(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #         CDL3BLACKCROWS = ta.CDL3BLACKCROWS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #         CDL3LINESTRIKE = ta.CDL3LINESTRIKE(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #         CDLSTICKSANDWICH = ta.CDLSTICKSANDWICH(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #         CDL3WHITESOLDIERS = ta.CDL3WHITESOLDIERS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+
+    #         if any(CDLHAMMER == 100) or any(CDLENGULFING == 100)\
+    #             or any(CDL3BLACKCROWS == 100) or any(CDL3LINESTRIKE == 100)\
+    #             or any(CDLSTICKSANDWICH == 100) or any(CDL3WHITESOLDIERS == 100):
+    #             print(DF)
+    #             self._GRAPHER(DFG, SYMB)
+    #             return True
+    #         return False
 
     def create_pridicted_data(self, data):
         chunked_data, chunk_length = self._data_in_chunks(data)
@@ -45,24 +58,11 @@ class Analyzer:
         RBF.fit(indecies, data)
         predicted = [RBF.predict([[index]])[0] for index in range(len(data), sample_size+int(sample_size*0.2))]
         pre = predicted[0]
-        temp = []
+        p_vals = []
         for i, p in enumerate(predicted):
             if i%interval == 0: pre = p
-            # else: p = pre
-            temp.append(pre)
-        predicted = temp
-
-
-        # for i in range(0, len(predicted), interval):
-        #     temp = [sum(predicted[i: i+interval])/interval]*interval
-        #     try:
-        #         for j in range(interval):
-        #             predicted[i+j] = temp[j]
-        #     except: pass
-            # for j in range(interval):
-            
-
-        # predicted = self.create_pridicted_data(predicted)
+            p_vals.append(pre)
+        predicted = p_vals
         return predicted
 
     def _predict(self, first_end, last_end, prediction_length):
@@ -100,15 +100,15 @@ class Analyzer:
         for value in data: values += value
         return values
 
-    def _graph(self, *args):
-        number_of_graphs = len(args)
-        # fig, axs = plt.subplots(number_of_graphs, 1)
-        for index in range(number_of_graphs): 
-            plt.plot(list(range(len(args[index]))), list(args[index]))
-        # fig.tight_layout()
-        plt.show()
+    # def _graph(self, *args):
+    #     number_of_graphs = len(args)
+    #     # fig, axs = plt.subplots(number_of_graphs, 1)
+    #     for index in range(number_of_graphs): 
+    #         plt.plot(list(range(len(args[index]))), list(args[index]))
+    #     # fig.tight_layout()
+    #     plt.show()
 
-if __name__ == '__main__':
-    data = yf.download('AAPL', period='5d', interval='1m')
-    App = Analyzer()
-    App.get(data)
+# if __name__ == '__main__':
+#     data = yf.download('AAPL', period='5d', interval='1m')
+#     App = Analyzer()
+#     App.get(data)
