@@ -1,6 +1,6 @@
 import yfinance as yf
 
-class stockData:
+class StockData:
     def __init__(self, ticker, init=True):
         self.ticker = yf.Ticker(ticker)
         self.init = init
@@ -35,7 +35,7 @@ class stockData:
     def getAllData(self):
         return yf.download(self.ticker.ticker, period = 'max', interval = '1d')
 
-print(stockData('AAPL', True).handler())
+# print(stockData('AAPL', True).handler())
 
 
 
