@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import yfinance as yf
 import numpy as np
 import pandas as pd
@@ -18,7 +18,7 @@ class Analyzer:
         # self.close = list(data['Close'])
         self.adj_close = list(data['Adj Close'])
         # self.volume = list(data['Volume'])
-        self._graph(self.adj_close, self.create_pridicted_data(self.adj_close)) 
+        # self._graph(self.adj_close, self.create_pridicted_data(self.adj_close)) 
 
         self.analytics = {
             'Data': self.adj_close,
@@ -29,7 +29,9 @@ class Analyzer:
 
         return self.analytics
 
-    def pattern_recignition(self): pass
+    def pattern_recignition(self, data):
+        chunked_data = self._data_in_chunks(data)
+        
 
     def create_pridicted_data(self, data):
         chunked_data, chunk_length = self._data_in_chunks(data)
@@ -45,24 +47,11 @@ class Analyzer:
         RBF.fit(indecies, data)
         predicted = [RBF.predict([[index]])[0] for index in range(len(data), sample_size+int(sample_size*0.2))]
         pre = predicted[0]
-        temp = []
+        p_vals = []
         for i, p in enumerate(predicted):
             if i%interval == 0: pre = p
-            # else: p = pre
-            temp.append(pre)
-        predicted = temp
-
-
-        # for i in range(0, len(predicted), interval):
-        #     temp = [sum(predicted[i: i+interval])/interval]*interval
-        #     try:
-        #         for j in range(interval):
-        #             predicted[i+j] = temp[j]
-        #     except: pass
-            # for j in range(interval):
-            
-
-        # predicted = self.create_pridicted_data(predicted)
+            p_vals.append(pre)
+        predicted = p_vals
         return predicted
 
     def _predict(self, first_end, last_end, prediction_length):
@@ -100,13 +89,13 @@ class Analyzer:
         for value in data: values += value
         return values
 
-    def _graph(self, *args):
-        number_of_graphs = len(args)
-        # fig, axs = plt.subplots(number_of_graphs, 1)
-        for index in range(number_of_graphs): 
-            plt.plot(list(range(len(args[index]))), list(args[index]))
-        # fig.tight_layout()
-        plt.show()
+    # def _graph(self, *args):
+    #     number_of_graphs = len(args)
+    #     # fig, axs = plt.subplots(number_of_graphs, 1)
+    #     for index in range(number_of_graphs): 
+    #         plt.plot(list(range(len(args[index]))), list(args[index]))
+    #     # fig.tight_layout()
+    #     plt.show()
 
 if __name__ == '__main__':
     data = yf.download('AAPL', period='5d', interval='1m')
