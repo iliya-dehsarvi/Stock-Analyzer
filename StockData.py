@@ -1,6 +1,6 @@
 import yfinance as yf
 
-class stockData:
+class StockData:
     def __init__(self, ticker, init=True):
         self.ticker = yf.Ticker(ticker)
         self.init = init
