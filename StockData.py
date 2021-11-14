@@ -35,7 +35,5 @@ class StockData:
     def getAllData(self):
         return yf.download(self.ticker.ticker, period = 'max', interval = '1d')
 
-# print(stockData('AAPL', True).handler())
-
 
 

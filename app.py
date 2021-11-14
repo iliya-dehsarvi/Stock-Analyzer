@@ -2,8 +2,10 @@ from flask import Flask, jsonify, request
 from StockData import StockData
 from Analyzer import Analyzer
 import threading as th
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 class Data:
     def __init__(self, ticker):
@@ -39,7 +41,7 @@ class Data:
 def ticker():
     # Send back 1MIN chart
     ticker = request.json["ticker"]
-    dataframe = StockData("AAPL").handler()
+    dataframe = StockData(ticker).handler()
     returnData = {
         'historical':list(dataframe['Adj Close'])
     }
