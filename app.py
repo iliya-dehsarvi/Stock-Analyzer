@@ -45,18 +45,12 @@ def ticker():
     ticker = request.json["ticker"]
     dataframe = StockData(ticker).handler()
     analytics = Analyzer()
-    predicted = analytics.get(dataframe['Adj Close'])
-
-    returnData = {
-        'historical':list(dataframe['Adj Close']),
-        'predicted':predicted
-
-    }
+    predicted = analytics.get(dataframe)
     # analytics = Analytics(stock_data)
     # predicted = analytics.predict()
     # log = analytics.logs()
 
-    return jsonify(returnData)
+    return jsonify(predicted)
 
 @app.route("/all", methods=["POST"])
 def all_data():

@@ -7,12 +7,12 @@ class StockData:
         #download ticker data, >3mo = 1d int, 6m = 1d, 1y = 1d, default=all, return adj close list, handle garbage tickers, get running parallel
 
     def handler(self):
-        if self.init:
+        if self.init == True:
             data = self.get1dData()
             self.init = False
             return data
         else:
-            return self.get5dData(), self.get1moData(), self.get3moData(), self.get6moData(), self.get1YrData(), self.getAllData()
+            return self.get5dData(), self.get1moData(), self.get3moData(), self.get6moData(), self.get1YrData(), getAllData()
 
     def get1dData(self):
         return yf.download(self.ticker, period='1d', interval='1m')
@@ -34,6 +34,7 @@ class StockData:
 
     def getAllData(self):
         return yf.download(self.ticker, period = 'max', interval = '1d')
+
 
 
 
