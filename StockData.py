@@ -21,19 +21,19 @@ class StockData:
         return yf.download(self.ticker, period='5d', interval='1m')
 
     def get1moData(self):
-        return yf.download(self.ticker, period='1mo', interval='5m')
+        return yf.download(self.ticker, period='1mo')
 
     def get3moData(self):
-        return yf.download(self.ticker, period='3mo', interval='1d')
+        return yf.download(self.ticker, period='3mo')
 
     def get6moData(self):
-        return yf.download(self.ticker, period='6mo', interval='1d')
+        return yf.download(self.ticker, period='6mo')
         
     def get1YrData(self):
-        return yf.download(self.ticker, period='1y', interval='1d')
+        return yf.download(self.ticker, period='1y')
 
     def getAllData(self):
-        return yf.download(self.ticker, period = 'max', interval = '1d')
+        return yf.download(self.ticker, period = 'max')
 
 
 

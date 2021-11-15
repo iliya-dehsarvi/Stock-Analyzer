@@ -9,6 +9,8 @@ import talib as ta
 class Analyzer:
     def get(self, data):
         self.data = data
+        self.logs = ''
+
         # self.open = list(data['Open'])
         # self.high = list(data['High'])
         # self.low = list(data['Low'])
@@ -16,13 +18,15 @@ class Analyzer:
         self.adj_close = list(data['Adj Close'])
         # self.volume = list(data['Volume'])
         # self._graph(self.adj_close, self.create_pridicted_data(self.adj_close)) 
+        self.pattern_recignition(self.data)
 
         self.analytics = {
             'historical': self.adj_close,
             'predicted': self.create_pridicted_data(self.adj_close),
             'notes': '',
-            'logs': None#self.pattern_recignition(self.data)
+            'logs': ''# self.logs 
         }
+        print(self.logs)
         # print()
         return self.analytics
 
@@ -58,7 +62,6 @@ class Analyzer:
 
     def pattern_recignition(self, DF):
         # chunked_data = self._data_in_chunks(data)
-        # self.logs = []
         # for DF in chunked_data:
         patterns = {
             'CDLHAMMER' : ta.CDLHAMMER(DF['Open'], DF['High'], DF['Low'], DF['Close']),
@@ -69,10 +72,13 @@ class Analyzer:
             'CDL3WHITESOLDIERS' : ta.CDL3WHITESOLDIERS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
         }
 
-        for name, pattern in patterns.items():
-            print(name)
-            print(pattern[pattern != 0].dropna())
-            print()
+        # for name, pattern in patterns.items():
+        #     # print(name)
+
+        #     pattern[pattern != 0].dropna()
+
+            # self.logs += str()+'\n'
+            # print()
             
 
     def create_pridicted_data(self, data):

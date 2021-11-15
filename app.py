@@ -12,10 +12,10 @@ class Data:
         self.ticker = ticker
         self._data = {}
         self.analytics = Analyzer()
+        self._json = {}
 
     def data(self):
         self._data = StockData(self.ticker)
-        self._json = {}
         intervals = {
             '1D': self._data.get1dData,
             '5D': self._data.get5dData,
@@ -23,7 +23,7 @@ class Data:
             '3M': self._data.get3moData,
             '6M': self._data.get6moData,
             '1Y': self._data.get1YrData,
-            'all': self._data.getAllData
+            'ALL': self._data.getAllData
         }
         threads = [th.Thread(target=self._call_back, args=(func, key)) for key, func in intervals.items()]
         for thread in threads: thread.start()
@@ -35,6 +35,7 @@ class Data:
         try:
             self._json[key] = self.analytics.get(func())
         except:
+            print('testttttttt')
             self._json[key] = None
 
 @app.route("/one", methods=["POST"])
