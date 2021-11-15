@@ -14,30 +14,28 @@ class Data:
         self.analytics = Analyzer()
 
     def data(self):
-        self._data = StockData(ticker)
-
+        self._data = StockData(self.ticker)
+        self._json = {}
         intervals = {
             '1D': self._data.get1dData,
             '5D': self._data.get5dData,
-            '1mo': self._data.get1moData,
-            '3mo': self._data.get3moData,
-            '6mo': self._data.get6moData,
-            '1yr': self._data.get1YrData,
+            '1M': self._data.get1moData,
+            '3M': self._data.get3moData,
+            '6M': self._data.get6moData,
+            '1Y': self._data.get1YrData,
             'all': self._data.getAllData
         }
         threads = [th.Thread(target=self._call_back, args=(func, key)) for key, func in intervals.items()]
         for thread in threads: thread.start()
         for thread in threads: thread.join()
-        _json = {
-            'ticker': ticker,
-            'intervals': _data
-        }
-        
-        return _json
+
+        return self._json
 
     def _call_back(self, func, key):
-        self._data[key] = self.analytics.get(func())
-
+        try:
+            self._json[key] = self.analytics.get(func())
+        except:
+            self._json[key] = None
 
 @app.route("/one", methods=["POST"])
 def ticker():
