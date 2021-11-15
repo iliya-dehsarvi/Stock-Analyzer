@@ -26,23 +26,54 @@ class Analyzer:
         # print()
         return self.analytics
 
-    # def pattern_recignition(self, data):
-    #     chunked_data = self._data_in_chunks(data)
-    #     for DF in chunked_data:
-    #         CDLHAMMER = ta.CDLHAMMER(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-    #         CDLENGULFING = ta.CDLENGULFING(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-    #         CDL3BLACKCROWS = ta.CDL3BLACKCROWS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-    #         CDL3LINESTRIKE = ta.CDL3LINESTRIKE(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-    #         CDLSTICKSANDWICH = ta.CDLSTICKSANDWICH(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-    #         CDL3WHITESOLDIERS = ta.CDL3WHITESOLDIERS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    # def _recognize(self, DF):
+    #     CDLHAMMER = ta.CDLHAMMER(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #     CDLENGULFING = ta.CDLENGULFING(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #     CDL3BLACKCROWS = ta.CDL3BLACKCROWS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #     CDL3LINESTRIKE = ta.CDL3LINESTRIKE(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #     CDLSTICKSANDWICH = ta.CDLSTICKSANDWICH(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #     CDL3WHITESOLDIERS = ta.CDL3WHITESOLDIERS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
 
-    #         if any(CDLHAMMER == 100) or any(CDLENGULFING == 100)\
-    #             or any(CDL3BLACKCROWS == 100) or any(CDL3LINESTRIKE == 100)\
-    #             or any(CDLSTICKSANDWICH == 100) or any(CDL3WHITESOLDIERS == 100):
-    #             print(DF)
-    #             self._GRAPHER(DFG, SYMB)
-    #             return True
-    #         return False
+    #     patterns = {
+    #         'CDLHAMMER' : ta.CDLHAMMER(DF['Open'], DF['High'], DF['Low'], DF['Close']),
+    #         'CDLENGULFING' : ta.CDLENGULFING(DF['Open'], DF['High'], DF['Low'], DF['Close']),
+    #         'CDL3BLACKCROWS' : ta.CDL3BLACKCROWS(DF['Open'], DF['High'], DF['Low'], DF['Close']),
+    #         'CDL3LINESTRIKE' : ta.CDL3LINESTRIKE(DF['Open'], DF['High'], DF['Low'], DF['Close']),
+    #         'CDLSTICKSANDWICH' : ta.CDLSTICKSANDWICH(DF['Open'], DF['High'], DF['Low'], DF['Close']),
+    #         'CDL3WHITESOLDIERS' : ta.CDL3WHITESOLDIERS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+    #     }
+
+    #     for name, pattern in patterns.items():
+    #         if any(patterns)
+        # if any(CDLHAMMER == 100):
+        # if any(CDLENGULFING == 100):
+        # if any(CDL3BLACKCROWS == 100):
+        # if any(CDL3LINESTRIKE == 100):
+        # if any(CDLSTICKSANDWICH == 100):
+        # if any(CDL3WHITESOLDIERS == 100):
+        #     self.logs.append('')
+        #     return True
+        # return False
+
+
+    def pattern_recignition(self, DF):
+        # chunked_data = self._data_in_chunks(data)
+        # self.logs = []
+        # for DF in chunked_data:
+        patterns = {
+            'CDLHAMMER' : ta.CDLHAMMER(DF['Open'], DF['High'], DF['Low'], DF['Close']),
+            'CDLENGULFING' : ta.CDLENGULFING(DF['Open'], DF['High'], DF['Low'], DF['Close']),
+            'CDL3BLACKCROWS' : ta.CDL3BLACKCROWS(DF['Open'], DF['High'], DF['Low'], DF['Close']),
+            'CDL3LINESTRIKE' : ta.CDL3LINESTRIKE(DF['Open'], DF['High'], DF['Low'], DF['Close']),
+            'CDLSTICKSANDWICH' : ta.CDLSTICKSANDWICH(DF['Open'], DF['High'], DF['Low'], DF['Close']),
+            'CDL3WHITESOLDIERS' : ta.CDL3WHITESOLDIERS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
+        }
+
+        for name, pattern in patterns.items():
+            print(name)
+            print(pattern[pattern != 0].dropna())
+            print()
+            
 
     def create_pridicted_data(self, data):
         chunked_data, chunk_length = self._data_in_chunks(data)
