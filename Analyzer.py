@@ -12,20 +12,24 @@ class Analyzer:
         self.data = data
         self.logs = ''
         self.adj_close = list(data['Adj Close'])
+        self.volume = list(data['Volume'])
         self.pattern_recignition(self.data)
-
+        cross_validation_prediction, predicted = self.create_pridicted_data(self.adj_close)
         self.analytics = {
             'historical': self.adj_close,
-            'predicted': self.create_pridicted_data(self.adj_close),
+            'cross-validation-prediction': cross_validation_prediction,
+            'predicted': predicted,
             'notes': '',
-            'logs': ''# self.logs 
+            'logs': self.logs 
         }
+
         print(self.logs)
-        if len(self.analytics['predicted']) < len(self.adj_close): first, second = self.analytics['predicted'], self.adj_close
-        else: second, first = self.analytics['predicted'], self.adj_close
-        diffs = [((first[i]-second[i])*100)/first[i] for i in range(len(first))]
+        if len(self.analytics['predicted']) < len(self.adj_close): first, second = cross_validation_prediction, self.adj_close
+        else: second, first = cross_validation_prediction, self.adj_close
+        diffs = [(abs(first[i]-second[i])*100)/first[i] for i in range(len(first))]
         diffs += [0]*(len(self.analytics['predicted'])-len(self.adj_close))
-        self._graph(self.adj_close, self.analytics['predicted'], diffs)
+        self.volume += [0]*(len(self.analytics['predicted'])-len(self.adj_close))
+        self._graph(self.adj_close, cross_validation_prediction, predicted, self.volume, diffs)
         return self.analytics
 
     def pattern_recignition(self, DF):
@@ -47,14 +51,14 @@ class Analyzer:
         predictions = [self._predict(self._join(chunked_data[:i]), self._join(chunked_data[i+1:]), chunk_length) for i in range(len(chunked_data))]
         prediction = []
         for _prediction in predictions: prediction += _prediction
-        return prediction+self.predict(data, chunk_length)
+        return prediction, self.predict(prediction)
 
-    def predict(self, data, interval):
+    def predict(self, data):
         sample_size = len(data)
         indecies = [[index] for index in range(len(data))]
         RBF = SVR()
         RBF.fit(indecies, data)
-        predicted = [RBF.predict([[index]])[0] for index in range(len(data), sample_size+int(sample_size*0.05))]
+        predicted = [RBF.predict([[index]])[0] for index in range(len(data), sample_size+int(sample_size*0.02))]
         return predicted
 
     def _predict(self, first_end, last_end, prediction_length):
@@ -78,13 +82,15 @@ class Analyzer:
         prediction = [(first+last)/2 for first, last in zip(first_end_prediction, last_end_prediction[::-1])]         
         return prediction
 
-    def _data_in_chunks(self, data, interval_rate=0.005):
+    def _data_in_chunks(self, data, interval_rate=0.01):
         interval = int(len(data)*interval_rate)
-        chunks = []
-        pre = 0
-        for curr in range(interval, len(data), interval):
-            chunks.append(data[pre: curr])
-            pre = curr
+        chunks = [data[x:x+interval] for x in range(0, len(data), interval)]
+        chunks += [data[len(data)%interval:]]
+        # chunks = []
+        # pre = 0
+        # for curr in range(interval, len(data), interval):
+        #     chunks.append(data[pre: curr])
+        #     pre = curr
         return chunks, interval
 
     def _join(self, data):
@@ -92,15 +98,16 @@ class Analyzer:
         for value in data: values += value
         return values
 
-    def _graph(self, *args):
-        number_of_graphs = len(args)
-        fig, axs = plt.subplots(number_of_graphs-1, 1)
-        for index in range(number_of_graphs-1): axs[0].plot(list(range(len(args[index]))), list(args[index]))
-        axs[1].bar(list(range(len(args[-1]))), args[-1])
+    def _graph(self, data, cross_validation_prediction, predicted, volume, diffs):
+        predicted = [None]*len(cross_validation_prediction)+predicted
+        fig, axs = plt.subplots(3, 1)
+        for graph in (data, cross_validation_prediction, predicted): axs[0].plot(list(range(len(graph))), graph)
+        axs[1].bar(list(range(len(volume))), volume)
+        axs[2].bar(list(range(len(diffs))), diffs)
         fig.tight_layout()
         plt.show()
 
 if __name__ == '__main__':
-    data = yf.download('AAPL', period='5d', interval='5m')
+    data = yf.download('AAPL', period='5d', interval='1m')
     App = Analyzer()
     App.get(data)
