@@ -14,26 +14,31 @@ class Data:
         self.analytics = Analyzer()
         self._json = {}
 
+
     def data(self):
         self._data = StockData(self.ticker)
         intervals = {
             '1D': self._data.get1dData,
             '5D': self._data.get5dData,
-            '1M': self._data.get1moData,
-            '3M': self._data.get3moData,
-            '6M': self._data.get6moData,
-            '1Y': self._data.get1YrData,
-            'ALL': self._data.getAllData
+            '1M': self._data.get1moData
         }
-        threads = [th.Thread(target=self._call_back, args=(func, key)) for key, func in intervals.items()]
-        for thread in threads: thread.start()
-        for thread in threads: thread.join()
+        # threads = [th.Thread(target=self._call_back, args=(func, key)) for key, func in intervals.items()]
+        # for thread in threads: thread.start()
+        # for thread in threads: thread.join()
 
+        for key, func in intervals.items():
+            self._call_back(func, key)
+        print('DONE')
         return self._json
 
     def _call_back(self, func, key):
         try:
-            self._json[key] = self.analytics.get(func())
+            print(func)
+            data_in = func()
+            print("first in", data_in['Adj Close'][0])
+            final_data = self.analytics.get(data_in)
+            print("first out", final_data['predicted'][0])
+            self._json[key] = final_data
         except:
             print('testttttttt')
             self._json[key] = None

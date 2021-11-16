@@ -5,19 +5,13 @@ from sklearn.svm import SVR
 import threading as th
 import json
 import talib as ta
+import matplotlib.pyplot as plt
 
 class Analyzer:
     def get(self, data):
         self.data = data
         self.logs = ''
-
-        # self.open = list(data['Open'])
-        # self.high = list(data['High'])
-        # self.low = list(data['Low'])
-        # self.close = list(data['Close'])
         self.adj_close = list(data['Adj Close'])
-        # self.volume = list(data['Volume'])
-        # self._graph(self.adj_close, self.create_pridicted_data(self.adj_close)) 
         self.pattern_recignition(self.data)
 
         self.analytics = {
@@ -27,42 +21,14 @@ class Analyzer:
             'logs': ''# self.logs 
         }
         print(self.logs)
-        # print()
+        if len(self.analytics['predicted']) < len(self.adj_close): first, second = self.analytics['predicted'], self.adj_close
+        else: second, first = self.analytics['predicted'], self.adj_close
+        diffs = [((first[i]-second[i])*100)/first[i] for i in range(len(first))]
+        diffs += [0]*(len(self.analytics['predicted'])-len(self.adj_close))
+        self._graph(self.adj_close, self.analytics['predicted'], diffs)
         return self.analytics
 
-    # def _recognize(self, DF):
-    #     CDLHAMMER = ta.CDLHAMMER(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-    #     CDLENGULFING = ta.CDLENGULFING(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-    #     CDL3BLACKCROWS = ta.CDL3BLACKCROWS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-    #     CDL3LINESTRIKE = ta.CDL3LINESTRIKE(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-    #     CDLSTICKSANDWICH = ta.CDLSTICKSANDWICH(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-    #     CDL3WHITESOLDIERS = ta.CDL3WHITESOLDIERS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-
-    #     patterns = {
-    #         'CDLHAMMER' : ta.CDLHAMMER(DF['Open'], DF['High'], DF['Low'], DF['Close']),
-    #         'CDLENGULFING' : ta.CDLENGULFING(DF['Open'], DF['High'], DF['Low'], DF['Close']),
-    #         'CDL3BLACKCROWS' : ta.CDL3BLACKCROWS(DF['Open'], DF['High'], DF['Low'], DF['Close']),
-    #         'CDL3LINESTRIKE' : ta.CDL3LINESTRIKE(DF['Open'], DF['High'], DF['Low'], DF['Close']),
-    #         'CDLSTICKSANDWICH' : ta.CDLSTICKSANDWICH(DF['Open'], DF['High'], DF['Low'], DF['Close']),
-    #         'CDL3WHITESOLDIERS' : ta.CDL3WHITESOLDIERS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
-    #     }
-
-    #     for name, pattern in patterns.items():
-    #         if any(patterns)
-        # if any(CDLHAMMER == 100):
-        # if any(CDLENGULFING == 100):
-        # if any(CDL3BLACKCROWS == 100):
-        # if any(CDL3LINESTRIKE == 100):
-        # if any(CDLSTICKSANDWICH == 100):
-        # if any(CDL3WHITESOLDIERS == 100):
-        #     self.logs.append('')
-        #     return True
-        # return False
-
-
     def pattern_recignition(self, DF):
-        # chunked_data = self._data_in_chunks(data)
-        # for DF in chunked_data:
         patterns = {
             'CDLHAMMER' : ta.CDLHAMMER(DF['Open'], DF['High'], DF['Low'], DF['Close']),
             'CDLENGULFING' : ta.CDLENGULFING(DF['Open'], DF['High'], DF['Low'], DF['Close']),
@@ -72,14 +38,9 @@ class Analyzer:
             'CDL3WHITESOLDIERS' : ta.CDL3WHITESOLDIERS(DF['Open'], DF['High'], DF['Low'], DF['Close'])
         }
 
-        # for name, pattern in patterns.items():
-        #     # print(name)
-
-        #     pattern[pattern != 0].dropna()
-
-            # self.logs += str()+'\n'
-            # print()
-            
+        for name, pattern in patterns.items():
+            print(name)
+            print(pattern[pattern == 100].dropna())
 
     def create_pridicted_data(self, data):
         chunked_data, chunk_length = self._data_in_chunks(data)
@@ -93,13 +54,7 @@ class Analyzer:
         indecies = [[index] for index in range(len(data))]
         RBF = SVR()
         RBF.fit(indecies, data)
-        predicted = [RBF.predict([[index]])[0] for index in range(len(data), sample_size+int(sample_size*0.2))]
-        pre = predicted[0]
-        p_vals = []
-        for i, p in enumerate(predicted):
-            if i%interval == 0: pre = p
-            p_vals.append(pre)
-        predicted = p_vals
+        predicted = [RBF.predict([[index]])[0] for index in range(len(data), sample_size+int(sample_size*0.05))]
         return predicted
 
     def _predict(self, first_end, last_end, prediction_length):
@@ -123,7 +78,7 @@ class Analyzer:
         prediction = [(first+last)/2 for first, last in zip(first_end_prediction, last_end_prediction[::-1])]         
         return prediction
 
-    def _data_in_chunks(self, data, interval_rate=0.01):
+    def _data_in_chunks(self, data, interval_rate=0.005):
         interval = int(len(data)*interval_rate)
         chunks = []
         pre = 0
@@ -137,15 +92,15 @@ class Analyzer:
         for value in data: values += value
         return values
 
-    # def _graph(self, *args):
-    #     number_of_graphs = len(args)
-    #     # fig, axs = plt.subplots(number_of_graphs, 1)
-    #     for index in range(number_of_graphs): 
-    #         plt.plot(list(range(len(args[index]))), list(args[index]))
-    #     # fig.tight_layout()
-    #     plt.show()
+    def _graph(self, *args):
+        number_of_graphs = len(args)
+        fig, axs = plt.subplots(number_of_graphs-1, 1)
+        for index in range(number_of_graphs-1): axs[0].plot(list(range(len(args[index]))), list(args[index]))
+        axs[1].bar(list(range(len(args[-1]))), args[-1])
+        fig.tight_layout()
+        plt.show()
 
-# if __name__ == '__main__':
-#     data = yf.download('AAPL', period='5d', interval='1m')
-#     App = Analyzer()
-#     App.get(data)
+if __name__ == '__main__':
+    data = yf.download('AAPL', period='5d', interval='5m')
+    App = Analyzer()
+    App.get(data)
