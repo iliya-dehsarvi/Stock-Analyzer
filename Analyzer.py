@@ -14,22 +14,24 @@ class Analyzer:
         self.adj_close = list(data['Adj Close'])
         self.volume = list(data['Volume'])
         self.pattern_recignition(self.data)
-        cross_validation_prediction, predicted = self.create_pridicted_data(self.adj_close)
+        cross_validation_prediction = self.create_pridicted_data(self.adj_close)
         self.analytics = {
             'historical': self.adj_close,
             'cross-validation-prediction': cross_validation_prediction,
-            'predicted': predicted,
+            # 'predicted': predicted,
             'notes': '',
             'logs': self.logs 
         }
 
         print(self.logs)
-        if len(self.analytics['predicted']) < len(self.adj_close): first, second = cross_validation_prediction, self.adj_close
+        if len(self.analytics['cross-validation-prediction']) < len(self.adj_close): first, second = cross_validation_prediction, self.adj_close
         else: second, first = cross_validation_prediction, self.adj_close
         diffs = [(abs(first[i]-second[i])*100)/first[i] for i in range(len(first))]
-        diffs += [0]*(len(self.analytics['predicted'])-len(self.adj_close))
-        self.volume += [0]*(len(self.analytics['predicted'])-len(self.adj_close))
-        self._graph(self.adj_close, cross_validation_prediction, predicted, self.volume, diffs)
+        cross_validation_prediction_volume = self.create_pridicted_data(diffs)
+
+        # diffs += [0]*(len(self.analytics['predicted'])-len(self.adj_close))
+        # self.volume += [0]*(len(self.analytics['predicted'])-len(self.adj_close))
+        self._graph(self.adj_close, cross_validation_prediction, cross_validation_prediction_volume, self.volume, diffs)
         return self.analytics
 
     def pattern_recignition(self, DF):
@@ -51,7 +53,7 @@ class Analyzer:
         predictions = [self._predict(self._join(chunked_data[:i]), self._join(chunked_data[i+1:]), chunk_length) for i in range(len(chunked_data))]
         prediction = []
         for _prediction in predictions: prediction += _prediction
-        return prediction, self.predict(prediction)
+        return prediction+self.predict(prediction)
 
     def predict(self, data):
         sample_size = len(data)
@@ -98,16 +100,17 @@ class Analyzer:
         for value in data: values += value
         return values
 
-    def _graph(self, data, cross_validation_prediction, predicted, volume, diffs):
-        predicted = [None]*len(cross_validation_prediction)+predicted
-        fig, axs = plt.subplots(3, 1)
-        for graph in (data, cross_validation_prediction, predicted): axs[0].plot(list(range(len(graph))), graph)
-        axs[1].bar(list(range(len(volume))), volume)
-        axs[2].bar(list(range(len(diffs))), diffs)
+    def _graph(self, data, cross_validation_prediction, cross_validation_prediction_volume, volume, diffs):
+        # predicted = [None]*len(cross_validation_prediction)+predicted
+        fig, axs = plt.subplots(4, 1)
+        for graph in (data, cross_validation_prediction): axs[0].plot(list(range(len(graph))), graph)
+        axs[1].bar(list(range(len(cross_validation_prediction_volume))), cross_validation_prediction_volume)
+        axs[2].bar(list(range(len(volume))), volume)
+        axs[3].bar(list(range(len(diffs))), diffs)
         fig.tight_layout()
         plt.show()
 
 if __name__ == '__main__':
-    data = yf.download('AAPL', period='5d', interval='1m')
+    data = yf.download('AAPL', period='1d', interval='1m')
     App = Analyzer()
     App.get(data)
