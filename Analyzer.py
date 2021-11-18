@@ -8,13 +8,17 @@ import talib as ta
 import matplotlib.pyplot as plt
 
 class Analyzer:
-    def get(self, data):
-        self.data = data
+    def get(self, data, interval_ratio=0.005):
+        # print(len(data))
+        extras = len(data)%int(len(data)*interval_ratio)
+        # print(extras)
+        # exit(1)
+        self.data = data[extras:]
         self.logs = ''
-        self.adj_close = list(data['Adj Close'])
-        self.volume = list(data['Volume'])
+        self.adj_close = list(self.data['Adj Close'])
+        self.volume = list(self.data['Volume'])
         self.pattern_recignition(self.data)
-        cross_validation_prediction = self.create_pridicted_data(self.adj_close)
+        cross_validation_prediction = self.create_pridicted_data(self.adj_close, interval_ratio)
         self.analytics = {
             'historical': self.adj_close,
             'cross-validation-prediction': cross_validation_prediction,
@@ -27,7 +31,7 @@ class Analyzer:
         if len(self.analytics['cross-validation-prediction']) < len(self.adj_close): first, second = cross_validation_prediction, self.adj_close
         else: second, first = cross_validation_prediction, self.adj_close
         diffs = [(abs(first[i]-second[i])*100)/first[i] for i in range(len(first))]
-        cross_validation_prediction_volume = self.create_pridicted_data(diffs)
+        cross_validation_prediction_volume = self.create_pridicted_data(diffs, interval_ratio)
 
         # diffs += [0]*(len(self.analytics['predicted'])-len(self.adj_close))
         # self.volume += [0]*(len(self.analytics['predicted'])-len(self.adj_close))
@@ -48,8 +52,8 @@ class Analyzer:
             print(name)
             print(pattern[pattern == 100].dropna())
 
-    def create_pridicted_data(self, data):
-        chunked_data, chunk_length = self._data_in_chunks(data)
+    def create_pridicted_data(self, data, interval_ratio):
+        chunked_data, chunk_length = self._data_in_chunks(data, interval_ratio)
         predictions = [self._predict(self._join(chunked_data[:i]), self._join(chunked_data[i+1:]), chunk_length) for i in range(len(chunked_data))]
         prediction = []
         for _prediction in predictions: prediction += _prediction
@@ -111,6 +115,6 @@ class Analyzer:
         plt.show()
 
 if __name__ == '__main__':
-    data = yf.download('AAPL', period='1d', interval='1m')
+    data = yf.download('EYPT', period='1d', interval='1m')
     App = Analyzer()
     App.get(data)
